@@ -3,6 +3,7 @@
 # Direct all questions to legal@cloudzero.com
 import random
 import statistics
+import string
 from typing import NamedTuple, List, Optional
 
 from toolz import count, iterate, take
@@ -19,6 +20,7 @@ class Attempt(NamedTuple):
     new_possible_words: List[str]
     guess: Optional[str] = None
     result: Optional[List[ResultElement]] = None
+    word_vector: Optional[List[str]] = None
 
     @property
     def is_winning_attempt(self) -> bool:
@@ -38,10 +40,12 @@ def simulate(i=0, goal=None, show_tries=False):
         words = last_attempt.new_possible_words
         guess = player.get_best_guess(words)
         result = game.get_result(guess, goal)
-        new_possible_words = player.apply_guess(words, guess, result)
-        return Attempt(guess=guess, result=result, new_possible_words=new_possible_words)
+        new_possible_words, new_vector = player.apply_guess(words, guess, result, last_attempt.word_vector)
+        return Attempt(guess=guess, result=result, new_possible_words=new_possible_words, word_vector=new_vector)
 
-    first_attempt = get_next_attempt(Attempt(new_possible_words=word_lists.get_valid_words()))
+    word_vector = [string.ascii_lowercase for _ in range(game.WORD_LENGTH)]
+    valid_words = word_lists.get_sorted_words()
+    first_attempt = get_next_attempt(Attempt(new_possible_words=valid_words, word_vector=word_vector))
     possible_attempts = iterate(get_next_attempt, first_attempt)
     attempts = list(take(MAX_ATTEMPTS, takeuntil(lambda x: x.is_winning_attempt, possible_attempts)))
 

@@ -16,6 +16,7 @@ class ResultElement(Enum):
 WORD_LENGTH = 5
 MAX_GUESSES = 6
 WINNING_RESULT = [ResultElement.green] * WORD_LENGTH
+MAX_FREQ = 100
 
 
 def get_result(check_word: str, goal_word: str) -> List[ResultElement]:
